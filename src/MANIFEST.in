@@ -1,0 +1,4 @@
+include *.txt
+include gabbs/resources/img/*
+include gabbs/resources/style/*
+recursive-include gabbs/layers/gdal_tms *.xml

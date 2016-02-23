@@ -1,0 +1,33 @@
+<RCC>
+  <qresource prefix="gabbs">
+    <file>resources/img/collapse.png</file>
+    <file>resources/img/deselectl.png</file>
+    <file>resources/img/expand.png</file>
+    <file>resources/img/layer.png</file>
+    <file>resources/img/layer-point.png</file>
+    <file>resources/img/layer-raster.png</file>
+    <file>resources/img/layer-vector.png</file>
+    <file>resources/img/layer-web.png</file>
+    <file>resources/img/mAction.png</file>
+    <file>resources/img/mActionFileOpen.png</file>
+    <file>resources/img/mActionFileSave.png</file>
+    <file>resources/img/mActionMapTips.png</file>
+    <file>resources/img/mActionZoomToLayer.png</file>
+    <file>resources/img/mIconProperties.png</file>
+    <file>resources/img/overview.png</file>
+    <file>resources/img/pan.png</file>
+    <file>resources/img/removeLayer.png</file>
+    <file>resources/img/select.png</file>
+    <file>resources/img/select-freehand.png</file>
+    <file>resources/img/select-polygon.png</file>
+    <file>resources/img/select-radius.png</file>
+    <file>resources/img/select-rectangle.png</file>
+    <file>resources/img/symbology.png</file>
+    <file>resources/img/zoom-full.png</file>
+    <file>resources/img/zoom-home.png</file>
+    <file>resources/img/zoom-in.png</file>
+    <file>resources/img/zoom-layer.png</file>
+    <file>resources/img/zoom-out.png</file>
+    <file>resources/img/google-logo.png</file>
+  </qresource>
+</RCC>
