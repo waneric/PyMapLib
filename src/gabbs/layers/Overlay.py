@@ -30,31 +30,59 @@ import gabbs.MapUtils as MapUtils
 
 
 class Vector(Layer):
-    def __init__(self, option):
+    def __init__(self, vectorFilePath, vectorName = None, option=None):
         Layer.__init__(self)
         self.option = option
-        self.layer = self.createLayer()
+        self.layer = self.createLayer(vectorFilePath, vectorName)
         self.setLayerProperty(self.option)
         self.setAddLayerCallback(self.addVectorLayerCallback)
 
-    def createLayer(self):
-        if 'fileName' in self.option:
-            fileName = self.option['fileName']
-        else:
+    def createLayer(self, vectorFilePath, vectorName):
+        # if 'fileName' in self.option:
+        #     fileName = self.option['fileName']
+        # else:
+        #     return None
+        # if 'layerName' in self.option:
+        #     layerName = self.option['layerName']
+        # else:
+        #     layerName = fileName.lower().replace("_", " ")
+        # layer = QgsVectorLayer(fileName, layerName, "ogr")
+
+        if vectorFilePath == None or vectorFilePath == "":
             return None
-        if 'layerName' in self.option:
-            layerName = self.option['layerName']
         else:
-            layerName = fileName.lower().replace("_", " ")
+            fileName = vectorFilePath
+
+        if vectorName == None or vectorName == "":
+            layerName = vectorFilePath.lower().replace("_", " ")
+        else:
+            layerName = vectorName
+
         layer = QgsVectorLayer(fileName, layerName, "ogr")
         #layer.setCrs(QgsCoordinateReferenceSystem(3857, QgsCoordinateReferenceSystem.EpsgCrsId))
         self.layerName = layerName
         return layer
 
+    def setCustomStyle(self, filePath):
+        res = self.loadStyleFile(filePath)
+        return
+
+    def setCustomScale(self, scaleRange):
+        self.layer.toggleScaleBasedVisibility(True)
+        self.layer.setMaximumScale(self.getScale(scaleRange[0]) + 1)
+        self.layer.setMinimumScale(self.getScale(scaleRange[1]) - 1)   
+        return
+
     def setLayerProperty(self, option):
+
+        if option == None:
+
+            return
+
         if 'attribution' in option:
              attribution = option['attribution']
              self.layer.setAttribution(QString(attribution))
+
         if "useSystemStyle" in option:
             if option['useSystemStyle'] == True:
                 dirPath = os.path.join(os.path.dirname(__file__), '..', 'resources', 'style')
@@ -71,11 +99,13 @@ class Vector(Layer):
                     symbols = self.layer.rendererV2().symbols()
                     s = symbols[0]
                     s.setColor(color)
+
         if 'opacity' in option:
              opacity = option['opacity']
              if opacity >= 0 and opacity <= 1:
                  trans = (1 - opacity) * 100
-                 self.layer.setLayerTransparency(trans)
+                 self.layer.setLayerTransparency(trans)     
+
         if 'visible' in option:
             mapLayer = QgsMapLayerRegistry.instance().mapLayer(self.layer.id())
             if not mapLayer:
@@ -84,6 +114,17 @@ class Vector(Layer):
                 mapLayer.setVisible(True)
             elif option['visible'] == False:
                 mapLayer.setVisible(False)
+
+        if "customScale" in option:
+            print "scale factor",
+            print self.getScale(option["customScale"][1]),
+            print "/",
+            print self.getScale(option["customScale"][0])
+            self.layer.toggleScaleBasedVisibility(True)
+            self.layer.setMaximumScale(self.getScale(option["customScale"][0]) + 1)
+            self.layer.setMinimumScale(self.getScale(option["customScale"][1]) - 1)   
+
+
 
     def addVectorLayerCallback(self):
         # Set active layer
