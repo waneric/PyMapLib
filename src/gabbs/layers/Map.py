@@ -31,18 +31,51 @@ import gabbs.resources_rc
 
 from gabbs.MapUtils import iface, debug_trace
 
+import os
+import math
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from qgis.core import *
+from qgis.gui import *
+
+from gabbs.layers.Layer import Layer
+from gabbs.layers.LayerProperty import *
+
+import gabbs.resources_rc
+
+from gabbs.MapUtils import iface, debug_trace
+
 class Map(Layer):
-    def __init__(self, layerOption):
+    def __init__(self, mapName, layerOption = None):
         Layer.__init__(self)
-        self.option = layerOption
+
+        # default
+        mapProp = {'center':
+                      {'lon': -86.21,
+                       'lat': 39.82},
+                   'zoom':    6,
+                   'maxZoom': 15,
+                   'minZoom': 0,
+                   'mapTypeId': 'OSM'}
+
+        if layerOption == None:
+            self.option = mapProp
+        else:
+            self.option = layerOption
+
         self.canvas = iface.mapCanvas
         self.window = iface.mainWindow
-        self.layerName = self.getMapLayerName()
+        
+        if mapName == None or mapName == "":
+            self.layerName = self.getMapLayerName()
+        else:
+            self.layerName = mapName
+        
         self.layerTypeName = self.getLayerTypeName()
         self.layerTypeId = self.getLayerTypeId()
         self.mapTypeName = self.getMapTypeName()
         self.layer = self.createLayer()
-        self.scale = MapScaleLevels(maxZoomlevel=18,
+        self.scale = MapScaleLevels(maxZoomlevel=15,
                                     minZoomlevel=0,
                                     dpi=self.window.physicalDpiX())
         self.centerPoint = self.getMapCenter()
@@ -53,7 +86,41 @@ class Map(Layer):
 
         self.setAddLayerCallback(self.addMapLayerCallback)
 
-    def getMapLayerName(self):
+    def setMapZoom(self, zoom):
+        
+        zoomLevel = int(zoom)
+        zoomScale = self.scale.getScale(zoomLevel)
+        self.zoomScale = zoomScale
+
+        iface.mapCanvas.zoomScale(self.zoomScale)
+        iface.mapZoomScale = self.zoomScale
+        
+        return
+
+    def setMapScale(self, minZoom = 0, maxZoom = 15):
+
+        self.scale = MapScaleLevels(maxZoomlevel=int(maxZoom),
+                                    minZoomlevel=int(minZoom),
+                                    dpi=self.window.physicalDpiX())
+
+        return
+
+    def setMapCenter(self, lon, lat):
+
+        center = None
+
+        crsTransform = self.createCrsTransform()
+        center = crsTransform.transform(QgsPoint(lon, lat), QgsCoordinateTransform.ForwardTransform)
+
+        self.centerPoint = center
+
+        iface.mapCanvas.setCenter(self.centerPoint)
+        iface.mapCenterPoint = self.centerPoint
+
+        return 
+
+
+    def getMapLayerName(self, mapName):
         if 'layerName' in self.option:
             layerName = str(self.option['layerName'])
         elif 'mapTypeId' in self.option:
@@ -191,6 +258,12 @@ class Map(Layer):
         iface.mapCanvas.scaleChanged.connect(self.scaleChanged)
 
     def scaleChanged(self, scale):
+        # print "scale chaned to",
+        # print scale,
+        # print "(",
+        # print self.scale.getZoomlevel(scale),
+        # print ")"
+
         scale = int(scale)            
         if scale not in self.scale.zoomlevels.values():
             zoomlevel = self.scale.getZoomlevel(scale)

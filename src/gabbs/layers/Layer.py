@@ -22,6 +22,7 @@ from PyQt4.QtGui import QAction, QIcon
 from qgis.gui import *
 from gabbs.layers.LayerProperty import *
 from gabbs.MapUtils import iface, debug_trace
+import math
 
 class Layer(object):
     """Base class for layers"""
@@ -63,3 +64,19 @@ class Layer(object):
                 return False
         else:
             return False
+
+    def getScale(self, zoomlevel):
+        dpi = iface.mainWindow.physicalDpiX()
+        inchesPerMeter = 39.37
+        maxScalePerPixel = 156543.04
+
+        try:
+            zoomlevel = int(zoomlevel)
+            scale = (dpi * inchesPerMeter * maxScalePerPixel) / (math.pow(2, zoomlevel))
+            scale = int(scale)
+            return scale
+        except TypeError:
+            raise
+            #pass
+        except Exception as e:
+            raise e
