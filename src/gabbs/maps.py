@@ -28,6 +28,7 @@ from gabbs.layers.Overlay import (Vector,
 from gabbs.events.MapEvent import (addListener,
                                    addAction)
 from gabbs.gui.MapContainer import MapContainer
+from gabbs.gui.ChartWindow import ChartWindow 
 from gabbs.tools.ServerThread import ServerThread
 from gabbs.MapUtils import *
 
@@ -91,8 +92,9 @@ def gbsGetSelectedBounds():
 def gbsGetDrawingBounds():
     """ Get bonding box of Drawing
     """
-    box = QRectF()
-    plugins = iface.mapContainer.plugins
+#     box = QRectF()
+    box = None
+    plugins = iface.mainWindow.plugins
     if 'drawingtool' in plugins:
         box = plugins["drawingtool"].tool.getBoundingBox()
     return box
@@ -125,3 +127,9 @@ def gbsShowLayer(mapLayer):
         return
     layerId = mapLayer.getLayer().id()
     iface.mapLegend.showLayer(layerId)
+
+def initChartWindow(parent):
+
+    dialog = ChartWindow(parent)
+
+    return dialog

@@ -18,6 +18,10 @@ redistribution of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 """
 
+import os
+from os.path import expanduser
+from subprocess import call
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
@@ -40,12 +44,17 @@ import gabbs.resources_rc
 from gabbs.MapUtils import iface, debug_trace
 
 class MapContainer(QMainWindow, Ui_MainWindow):
-    def __init__(self, option):
+    def __init__(self, option = None):
         QMainWindow.__init__(self)
         self.setupUi(self)
         #self.setWindowTitle("ShapeViewer")
         self.setWindowFlags(Qt.FramelessWindowHint)
-        self.option = option
+
+        if option == None:
+            self.option = {}
+        else:
+            self.option = option
+
         self.canvas = MapCanvas()
         iface.mainWindow = self
         iface.mapCanvas = self.canvas
@@ -66,7 +75,23 @@ class MapContainer(QMainWindow, Ui_MainWindow):
         QgsPythonRunner.setInstance(iface.pythonUtils)
 
         self.plugins = {}
-        self.setPlugin()
+        # self.setPlugin()
+        homePath = expanduser("~")
+        tempPath = homePath + "/mapsTempOutput"
+
+        if not os.path.exists(tempPath):
+            os.makedirs(tempPath)
+        else:
+            for the_file in os.listdir(tempPath):
+                file_path = os.path.join(tempPath, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path): 
+                        shutil.rmtree(file_path)
+                except Exception, e:
+                    print e
+
 
     """ event filter for window events
     """
@@ -158,6 +183,121 @@ class MapContainer(QMainWindow, Ui_MainWindow):
     def addStatusBar(self):
         self.statusBar()
         self.statusBar().showMessage("x:    , y:    ")
+
+    def setMapTipControl(self, tf):
+        if tf == True:
+            self.addMapToolBar()
+            self.setMapTip()
+        return
+        
+    def setStatusControl(self, tf):
+        if tf == True:
+            pass
+        return
+
+    def setOverviewControl(self, tf):
+        if tf == True:
+            self.addMapToolBar()
+            self.setOverviewWidget()
+        return
+
+    def setActionControl(self, tf, size = None, style = None):
+        if tf == True:
+            actionSize = 'DEFAULT'
+            actionStyle = 'DROPDOWN_MENU'
+
+            if size != None:
+                actionSize = size
+
+            if style != None:
+                actionStyle = style
+
+            self.addMapToolBar()
+            self.mapTool.addMapToolAction(actionSize, actionStyle)
+        return
+
+    def setCaptureTool(self, tf):
+
+        if tf == True:
+            self.addMapToolBar()
+            self.setMapCapture()
+
+        return
+
+    def setSelectControl(self, tf, size = None, style = None, options = None):
+        
+        if tf == True:
+            selectSize = 'DEFAULT'
+            selectStyle = 'DROPDOWN_MENU'
+            option = []
+
+            if size != None:
+                selectSize = size
+
+            if style != None:
+                selectStyle = style
+
+            if options != None:
+                option = options.replace(" ", "").split(',')
+
+            self.addMapToolBar()
+            self.mapTool.addMapToolSelect(selectSize, selectStyle, option)
+
+
+        return
+
+    def setLayerControl(self, tf, options = None):
+        if tf == True:
+            propertyFlag = False
+            if options != None:
+                if options == 'ON':
+                    propertyFlag = True
+
+            self.addMapToolBar()
+            self.setLegendWidget(True, propertyFlag)
+        else:
+            self.setLegendWidget(False, False)
+
+        return
+
+    def setZoomControl(self, tf, size = None, style = None, options = None):
+        
+        if tf == True:
+            zoomSize = 'DEFAULT'
+            zoomStyle = 'DROPDOWN_MENU'
+            option = []
+
+            if size != None:
+                zoomSize = size
+
+            if style != None:
+                zoomStyle = style
+
+            if options != None:
+                option = options.replace(" ", "").split(',')
+
+
+            self.addMapToolBar()
+            self.mapTool.addMapToolZoom(zoomSize, zoomStyle, option)
+
+        return
+
+    def setPanControl(self, tf, size = None, style = None):
+
+        if tf == True:
+            panSize = 'DEFAULT'
+            panStyle = 'DEFAULT'
+            
+            if size != None:
+                panSize = size
+
+            if style != None:
+                panStyle = style
+
+            self.addMapToolBar()
+            self.mapTool.addMapToolPan(panSize, panStyle)
+
+        return
 
     def setMapControl(self):
         if 'layerControl' in self.option:
@@ -283,26 +423,69 @@ class MapContainer(QMainWindow, Ui_MainWindow):
         action.toggled.connect(self.onToggledMapTip)
         self.mapToolBar.addAction(action)
 
+    def setMapCapture(self):
+        # print os.path.join(os.path.dirname(gabbs.__file__), 'resources/img', 'camera.png')
+        action = QAction(QIcon(os.path.join(os.path.dirname(gabbs.__file__), 'resources/img', 'camera.png')), QString("Screenshot"), iface.mainWindow)
+        action.setToolTip("Take screenshot")
+        QObject.connect(action, SIGNAL("triggered()"), self.takeScreenshot)
+        self.mapToolBar.addAction(action)
+
+        
+
+
+    def takeScreenshot(self):
+        homePath = expanduser("~")
+        tempPath = homePath + "/mapsTempOutput"
+
+        if not os.path.exists(tempPath):
+            os.makedirs(tempPath)
+        
+
+        p = QPixmap.grabWindow(iface.mapCanvas.winId())
+        p.save(tempPath + "/img.png", 'png')
+
+        # print "imageDownload1"
+        call(["/usr/bin/exportfile", tempPath + "/img.png"])
+        # print "done"
+
+        return
+
     def onToggledMapTip(self, checked):
         if checked:
             self.mapTip.turnOnMapTips()
         else:
             self.mapTip.turnOffMapTips()
 
-    def setPlugin(self):
-        if 'pluginControl' in self.option:
-            plugins = self.option['pluginControl'].replace(" ", "").split(',')
-            for val in plugins:
-                if val == 'valuetool':
-                    self.addMapToolBar()
-                    plugin = ValueTool(iface)
-                    plugin.initGui()
-                    self.plugins[val] = plugin
-                if val == 'drawingtool':
-                    self.addMapToolBar()
-                    plugin = DrawingTool(iface)
-                    plugin.initGui()
-                    self.plugins[val] = plugin
+    def setPlugin(self, pluginName):
+        
+        self.addMapToolBar()
+        plugin = None
+
+        if pluginName == 'valuetool':    
+            plugin = ValueTool(iface)
+        elif pluginName == 'drawingtool':
+            plugin = DrawingTool(iface)
+        else:
+            return
+
+        plugin.initGui()
+        self.plugins[pluginName] = plugin
+
+        return
+        
+        # if 'pluginControl' in self.option:
+        #     plugins = self.option['pluginControl'].replace(" ", "").split(',')
+        #     for val in plugins:
+        #         if val == 'valuetool':
+        #             self.addMapToolBar()
+        #             plugin = ValueTool(iface)
+        #             plugin.initGui()
+        #             self.plugins[val] = plugin
+        #         if val == 'drawingtool':
+        #             self.addMapToolBar()
+        #             plugin = DrawingTool(iface)
+        #             plugin.initGui()
+        #             self.plugins[val] = plugin
 
     """ Public member functions
     """
