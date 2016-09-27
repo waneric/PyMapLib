@@ -201,13 +201,21 @@ def setSelectFeatures(canvas, selectGeometry, doContains, doDifference, singleSe
         selectedFeatures = [] #QgsFeatureIds 
         deselectedFeatures = []# QgsFeatureIds
 
-        i = QgsFeatureIds.const_iterator(newSelectedFeatures.constEnd())
-        while i != newSelectedFeatures.constBegin():
-            i = i - 1 
-            if layerSelectedFeatures.contains(i):
-                deselectedFeatures.insert(0, i)
+        # i = QgsFeatureIds.const_iterator(newSelectedFeatures.constEnd())
+        # while i != newSelectedFeatures.constBegin():
+        #     i = i - 1 
+        #     if layerSelectedFeatures.contains(i):
+        #         deselectedFeatures.insert(0, i)
+        #     else:
+        #         selectedFeatures.insert(0, i)
+
+        for item in newSelectedFeatures:
+            if item in layerSelectedFeatures:
+                deselectedFeatures.insert(0, item)
             else:
-                selectedFeatures.insert(0, i)
+                selectedFeatures.insert(0, item)
+
+
         vlayer.modifySelection(selectedFeatures, deselectedFeatures)
     else:
         vlayer.setSelectedFeatures(newSelectedFeatures)
