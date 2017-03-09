@@ -28,7 +28,7 @@ from gabbs.layers.Overlay import (Vector,
 from gabbs.events.MapEvent import (addListener,
                                    addAction)
 from gabbs.gui.MapContainer import MapContainer
-from gabbs.gui.ChartWindow import ChartWindow 
+from gabbs.gui.ChartWindow import ChartWindow
 from gabbs.tools.ServerThread import ServerThread
 from gabbs.MapUtils import *
 

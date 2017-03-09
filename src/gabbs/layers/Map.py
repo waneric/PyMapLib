@@ -31,20 +31,6 @@ import gabbs.resources_rc
 
 from gabbs.MapUtils import iface, debug_trace
 
-import os
-import math
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
-
-from gabbs.layers.Layer import Layer
-from gabbs.layers.LayerProperty import *
-
-import gabbs.resources_rc
-
-from gabbs.MapUtils import iface, debug_trace
-
 class Map(Layer):
     def __init__(self, mapName, layerOption = None):
         Layer.__init__(self)
@@ -65,12 +51,12 @@ class Map(Layer):
 
         self.canvas = iface.mapCanvas
         self.window = iface.mainWindow
-        
+
         if mapName == None or mapName == "":
             self.layerName = self.getMapLayerName()
         else:
             self.layerName = mapName
-        
+
         self.layerTypeName = self.getLayerTypeName()
         self.layerTypeId = self.getLayerTypeId()
         self.mapTypeName = self.getMapTypeName()
@@ -87,14 +73,14 @@ class Map(Layer):
         self.setAddLayerCallback(self.addMapLayerCallback)
 
     def setMapZoom(self, zoom):
-        
+
         zoomLevel = int(zoom)
         zoomScale = self.scale.getScale(zoomLevel)
         self.zoomScale = zoomScale
 
         iface.mapCanvas.zoomScale(self.zoomScale)
         iface.mapZoomScale = self.zoomScale
-        
+
         return
 
     def setMapScale(self, minZoom = 0, maxZoom = 15):
@@ -117,7 +103,7 @@ class Map(Layer):
         iface.mapCanvas.setCenter(self.centerPoint)
         iface.mapCenterPoint = self.centerPoint
 
-        return 
+        return
 
 
     def getMapLayerName(self, mapName):
@@ -144,7 +130,7 @@ class Map(Layer):
         return LayerTypeId.TMS
 
     def setLayerAttribution(self):
-        if self.mapTypeName in (MapTypeName.GOOGLE_TERRAIN, 
+        if self.mapTypeName in (MapTypeName.GOOGLE_TERRAIN,
                                 MapTypeName.GOOGLE_ROADMAP,
                                 MapTypeName.GOOGLE_HYBRID,
                                 MapTypeName.GOOGLE_SATELLITE):
@@ -165,7 +151,7 @@ class Map(Layer):
         self.canvas.setOverlayText(attribution, xOffset, yOffset)
 
     def setLayerAttributionIcon(self):
-        if self.mapTypeName in (MapTypeName.GOOGLE_TERRAIN, 
+        if self.mapTypeName in (MapTypeName.GOOGLE_TERRAIN,
                                 MapTypeName.GOOGLE_ROADMAP,
                                 MapTypeName.GOOGLE_HYBRID,
                                 MapTypeName.GOOGLE_SATELLITE):
@@ -264,7 +250,7 @@ class Map(Layer):
         # print self.scale.getZoomlevel(scale),
         # print ")"
 
-        scale = int(scale)            
+        scale = int(scale)
         if scale not in self.scale.zoomlevels.values():
             zoomlevel = self.scale.getZoomlevel(scale)
             if zoomlevel <> None:

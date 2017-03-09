@@ -14,7 +14,7 @@ install:
 	mkdir -p ${PYSITEDIR}
 	PYTHONPATH=${PYSITEDIR}:${PYTHONPATH} python setup.py install --prefix ${INSTALLDIR}
 	sed -e "s:REV:${REV}:" -e "s:INSTALLDIR:${INSTALLDIR}:" gbsmaps.use.in > ${ENVIRONPATH}
-	chmod 444 ${ENVIRONPATH}
+	chmod 644 ${ENVIRONPATH}
 
 clean:
 	python setup.py clean --all
@@ -24,4 +24,3 @@ distclean: clean
 	rm -rf ${INSTALLDIR}
 
 .PHONY: all install clean distclean
-
