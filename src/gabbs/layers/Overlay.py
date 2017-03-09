@@ -69,7 +69,6 @@ class Vector(Layer):
         self.layerName = layerName
         return layer
 
-
     def setCustomStyle(self, filePath):
         res = self.loadStyleFile(filePath)
         return
@@ -123,10 +122,6 @@ class Vector(Layer):
                 mapLayer.setVisible(False)
 
         if "customScale" in option:
-            print "scale factor",
-            print self.getScale(option["customScale"][1]),
-            print "/",
-            print self.getScale(option["customScale"][0])
             self.layer.toggleScaleBasedVisibility(True)
             self.layer.setMaximumScale(self.getScale(option["customScale"][0]) + 1)
             self.layer.setMinimumScale(self.getScale(option["customScale"][1]) - 1)
@@ -139,28 +134,61 @@ class Vector(Layer):
         pass
 
 class Raster(Layer):
-    def __init__(self, option):
+    def __init__(self, rasterFilePath, name = None, option = None):
         Layer.__init__(self)
         self.option = option
-        self.layer = self.createLayer()
+        self.layer = self.createLayer(rasterFilePath, name)
         self.setLayerProperty(self.option)
         self.setAddLayerCallback(self.addRasterLayerCallback)
 
-    def createLayer(self):
-        if 'fileName' in self.option:
-            fileName = self.option['fileName']
-        else:
+    def createLayer(self, rasterFilePath, rasterName):
+        # if 'fileName' in self.option:
+        #     fileName = self.option['fileName']
+        # else:
+        #     return None
+        # if 'layerName' in self.option:
+        #     layerName = self.option['layerName']
+        # else:
+        #     layerName = fileName.lower().replace("_", " ")
+        # layer = QgsRasterLayer(fileName, layerName)
+
+        if rasterFilePath == None or rasterFilePath == "":
             return None
-        if 'layerName' in self.option:
-            layerName = self.option['layerName']
         else:
-            layerName = fileName.lower().replace("_", " ")
+            fileName = rasterFilePath
+
+        if rasterName == None or rasterName == "":
+            layerName = rasterFilePath.lower().replace("_", " ")
+        else:
+            layerName = rasterName
+
         layer = QgsRasterLayer(fileName, layerName)
+
         #layer.setCrs(QgsCoordinateReferenceSystem(3857, QgsCoordinateReferenceSystem.EpsgCrsId))
         self.layerName = layerName
         return layer
 
+    def setCustomStyle(self, filePath):
+        """ Beautify layer with custom style
+        """
+        res = self.loadStyleFile(filePath)
+        return
+
+    def setCustomScale(self, scaleRange):
+        """ Set visible zoom range of the layer e.g. scaleRange = [3,7]
+        """
+        self.layer.toggleScaleBasedVisibility(True)
+        self.layer.setMaximumScale(self.getScale(scaleRange[0]) + 1)
+        self.layer.setMinimumScale(self.getScale(scaleRange[1]) - 1)
+        return
+
     def setLayerProperty(self, option):
+        """ Set options for the layer with specific properties
+        """
+        if option == None:
+
+            return
+
         if 'attribution' in option:
              attribution = option['attribution']
              self.layer.setAttribution(QString(attribution))
@@ -191,28 +219,45 @@ class Raster(Layer):
             elif option['visible'] == False:
                 mapLayer.setVisible(False)
 
+        if "customScale" in option:
+            self.layer.toggleScaleBasedVisibility(True)
+            self.layer.setMaximumScale(self.getScale(option["customScale"][0]) + 1)
+            self.layer.setMinimumScale(self.getScale(option["customScale"][1]) - 1)
+
+
     def addRasterLayerCallback(self):
         # Set active layer
         #iface.mapCanvas.setCurrentLayer(self.layer)
         pass
 
 class DelimitedText(Layer):
-    def __init__(self, option):
+    def __init__(self, dtFilePath, name = None, option = None):
         Layer.__init__(self)
         self.option = option
-        self.layer = self.createLayer()
+        self.layer = self.createLayer(dtFilePath, name)
         self.setLayerProperty(self.option)
         self.setAddLayerCallback(self.addDelimitedTextLayerCallback)
 
-    def createLayer(self):
-        if 'fileName' in self.option:
-            fileName = self.option['fileName']
-        else:
+    def createLayer(self, dtFilePath, dtName):
+        # if 'fileName' in self.option:
+        #     fileName = self.option['fileName']
+        # else:
+        #     return None
+        # if 'layerName' in self.option:
+        #     layerName = self.option['layerName']
+        # else:
+        #     layerName = fileName.lower().replace("_", " ")
+
+        if dtFilePath == None or dtFilePath == "":
             return None
-        if 'layerName' in self.option:
-            layerName = self.option['layerName']
         else:
-            layerName = fileName.lower().replace("_", " ")
+            fileName = dtFilePath
+
+        if dtName == None or dtName == "":
+            layerName = dtFilePath.lower().replace("_", " ")
+        else:
+            layerName = dtName
+
         de = ","
         x = "Longitude"
         y = "Latitude"
@@ -225,10 +270,32 @@ class DelimitedText(Layer):
         #uri = "file:///" + fileName + "?crs=epsg:3857&delimiter=%s&xField=%s&yField=%s" % (",", "Longitude", "Latitude")
         uri = "file:///" + fileName + "?delimiter=%s&xField=%s&yField=%s" % (de, x, y)
         layer = QgsVectorLayer(uri, layerName, "delimitedtext")
+
         self.layerName = layerName
+
         return layer
 
+    def setCustomStyle(self, filePath):
+        """ Beautify layer with custom style
+        """
+        res = self.loadStyleFile(filePath)
+        return
+
+    def setCustomScale(self, scaleRange):
+        """ Set visible zoom range of the layer e.g. scaleRange = [3,7]
+        """
+        self.layer.toggleScaleBasedVisibility(True)
+        self.layer.setMaximumScale(self.getScale(scaleRange[0]) + 1)
+        self.layer.setMinimumScale(self.getScale(scaleRange[1]) - 1)
+        return
+
     def setLayerProperty(self, option):
+        """ Set options for the layer with specific properties
+        """
+        if option == None:
+
+            return
+
         if 'attribution' in option:
              attribution = option['attribution']
              self.layer.setAttribution(QString(attribution))
@@ -268,6 +335,11 @@ class DelimitedText(Layer):
         if 'attribution' in option:
              attribution = option['attribution']
              self.layer.setAttribution(QString(attribution))
+
+        if "customScale" in option:
+            self.layer.toggleScaleBasedVisibility(True)
+            self.layer.setMaximumScale(self.getScale(option["customScale"][0]) + 1)
+            self.layer.setMinimumScale(self.getScale(option["customScale"][1]) - 1)
 
     def addDelimitedTextLayerCallback(self):
         # Set active layer

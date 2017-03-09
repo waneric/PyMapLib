@@ -1,4 +1,5 @@
 LIBDIR=/apps/share64/debian7
+#LIBDIR=/home/mygeohub/shin152/pywintxrun
 ENVIRONDIR=${LIBDIR}/environ.d
 ENVIRONPATH=${ENVIRONDIR}/gbsmaps-${REV}
 GBSMAPSDIR=${LIBDIR}/gbsmaps
@@ -14,7 +15,7 @@ install:
 	mkdir -p ${PYSITEDIR}
 	PYTHONPATH=${PYSITEDIR}:${PYTHONPATH} python setup.py install --prefix ${INSTALLDIR}
 	sed -e "s:REV:${REV}:" -e "s:INSTALLDIR:${INSTALLDIR}:" gbsmaps.use.in > ${ENVIRONPATH}
-	chmod 444 ${ENVIRONPATH}
+	chmod 644 ${ENVIRONPATH}
 
 clean:
 	python setup.py clean --all

@@ -64,11 +64,11 @@ class LayerProperties( QDialog, Ui_LayerProperties ):
 
         if self.layer.hasScaleBasedVisibility():
             self.chkScale.setCheckState( Qt.Checked )
-            self.chkScaleChanged( 1 ) 
+            self.chkScaleChanged( 1 )
             self.initialScaleDependency = True
         else:
             self.chkScale.setCheckState( Qt.Unchecked )
-            self.chkScaleChanged( 0 ) 
+            self.chkScaleChanged( 0 )
             self.initialScaleDependency = False
 
         self.initialMaxScale = self.layer.minimumScale() # To know if refresh the canvas
@@ -82,12 +82,12 @@ class LayerProperties( QDialog, Ui_LayerProperties ):
             self.lblMaxScale.setEnabled( True )
             self.lblMinScale.setEnabled( True )
             self.maxScaleSpinBox.setEnabled( True )
-            self.minScaleSpinBox.setEnabled( True )            
+            self.minScaleSpinBox.setEnabled( True )
         else:
             self.lblMaxScale.setEnabled( False )
             self.lblMinScale.setEnabled( False )
             self.maxScaleSpinBox.setEnabled( False )
-            self.minScaleSpinBox.setEnabled( False )            
+            self.minScaleSpinBox.setEnabled( False )
 
     def apply( self ):
         """ Apply the new symbology to the vector layer """
@@ -117,4 +117,3 @@ class LayerProperties( QDialog, Ui_LayerProperties ):
     def mostrar( self ):
         """ Show the modal dialog """
         self.exec_()
-
