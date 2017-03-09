@@ -1,5 +1,4 @@
 LIBDIR=/apps/share64/debian7
-#LIBDIR=/home/mygeohub/shin152/pywintxrun
 ENVIRONDIR=${LIBDIR}/environ.d
 ENVIRONPATH=${ENVIRONDIR}/gbsmaps-${REV}
 GBSMAPSDIR=${LIBDIR}/gbsmaps
@@ -25,4 +24,3 @@ distclean: clean
 	rm -rf ${INSTALLDIR}
 
 .PHONY: all install clean distclean
-
